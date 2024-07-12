@@ -1,0 +1,116 @@
+const {PrismaClient} = require('@prisma/client')
+const prisma = new PrismaClient()
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const zod = require('zod');
+
+const signUpSchema = zod.object({
+    username  : zod.string(),
+    email  : zod.string().email(),
+    password : zod.string().min(6)
+})
+
+const signInSchema = zod.object({
+    email  : zod.string().email(),
+    password : zod.string().min(6)
+})
+
+const signup =async (req,res) => {
+    const datas = req.body;
+
+    const {success} = signUpSchema.safeParse(datas);
+    
+    if(!success){
+        res.json({
+            success : false,
+            message : "Wrong Inputs"
+        })
+    }
+
+    try{
+        const existUser = await prisma.user.findUnique({
+            where : {
+                email : datas.email
+            }
+        })
+
+        if(existUser){
+            res.json({
+                success : false,
+                message : "User Already Exists"
+            })
+        }
+
+        const hashsedPassword = await bcrypt.hash(datas.password,10);
+
+        const user = await prisma.user.create({
+            data : {
+                username : data.username,
+                email : datas.email,
+                password : datas.password
+            }
+        })
+
+        const token = jwt.sign({id : user.id},process.env.JWT_SECRET)
+
+        res.json({
+            token : "Bearer "+token,
+            success : true,
+            message : "User Created Successfully"
+        })
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const signin = async (req,res) => {
+    const datas = req.body;
+
+    const {success} = signInSchema.safeParse(datas);
+    
+    if(!success){
+        res.json({
+            success : false,
+            message : "Wrong Inputs"
+        })
+    }
+
+    try{
+        const user = await prisma.user.findUnique({
+            where : {
+                email : datas.email
+            }
+        })
+
+        if(!user){
+            res.json({
+                success : false,
+                message : "Incorrect emai or password"
+            })
+        }
+
+        const isUser = await bcrypt.compare(user.password,data.password);
+        if(!isUser){
+            res.json({
+                success : false,
+                message : "Wrong password"
+            })
+        }
+
+        const token = await jwt.sign({id : user.id},process.env.JWT_SECRET)
+
+        res.json({
+            token : "Bearer " + token,
+            success : false,
+            message : "Logged In Successfully"
+        })
+    }
+    catch(err){
+        console.log(err);
+    }
+}
+
+module.exports = {
+    signup,
+    signin
+}
