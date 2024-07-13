@@ -1,6 +1,6 @@
 const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient()
-const jwt = requrie("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const authMiddleware = async (req,res,next) => {
@@ -9,12 +9,12 @@ const authMiddleware = async (req,res,next) => {
     const decoded = jwt.verify(token,process.env.JWT_SECRET);
     const user = await prisma.user.findUnique({
         where : {
-            email : decoded.email
+            id : decoded.id
         }
     })
 
     if(user){
-        req.body = user.id;
+        req.body.userId = user.id;
         next();
     }else{
         res.json({

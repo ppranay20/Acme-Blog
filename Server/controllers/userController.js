@@ -5,8 +5,8 @@ const bcrypt = require('bcrypt');
 const zod = require('zod');
 
 const signUpSchema = zod.object({
-    username  : zod.string(),
-    email  : zod.string().email(),
+    username  : zod.string().optional(),
+    email  : zod.string(),
     password : zod.string().min(6)
 })
 
@@ -21,21 +21,22 @@ const signup =async (req,res) => {
     const {success} = signUpSchema.safeParse(datas);
     
     if(!success){
-        res.json({
+        return res.json({
             success : false,
             message : "Wrong Inputs"
         })
     }
 
+
     try{
         const existUser = await prisma.user.findUnique({
             where : {
                 email : datas.email
-            }
+            },
         })
 
         if(existUser){
-            res.json({
+            return res.json({
                 success : false,
                 message : "User Already Exists"
             })
@@ -45,16 +46,16 @@ const signup =async (req,res) => {
 
         const user = await prisma.user.create({
             data : {
-                username : data.username,
+                username : datas.username,
                 email : datas.email,
-                password : datas.password
+                password : hashsedPassword
             }
         })
 
         const token = jwt.sign({id : user.id},process.env.JWT_SECRET)
 
         res.json({
-            token : "Bearer "+token,
+            token : "Bearer "+ token,
             success : true,
             message : "User Created Successfully"
         })
@@ -69,7 +70,7 @@ const signin = async (req,res) => {
     const {success} = signInSchema.safeParse(datas);
     
     if(!success){
-        res.json({
+        return res.json({
             success : false,
             message : "Wrong Inputs"
         })
@@ -83,15 +84,15 @@ const signin = async (req,res) => {
         })
 
         if(!user){
-            res.json({
+            return res.json({
                 success : false,
                 message : "Incorrect emai or password"
             })
         }
 
-        const isUser = await bcrypt.compare(user.password,data.password);
+        const isUser = await bcrypt.compare(datas.password,user.password);
         if(!isUser){
-            res.json({
+            return res.json({
                 success : false,
                 message : "Wrong password"
             })
@@ -101,7 +102,7 @@ const signin = async (req,res) => {
 
         res.json({
             token : "Bearer " + token,
-            success : false,
+            success : true,
             message : "Logged In Successfully"
         })
     }
