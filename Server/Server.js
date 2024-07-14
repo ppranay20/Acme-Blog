@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const {userRouter} = require('./routes/userRoute');
-const {blogRouter} = require('./routes/blogRoute') 
+const {blogRouter} = require('./routes/blogRoute');
+const cors = require('cors'); 
 
 app.get("/",(req,res) => {
     res.send("Hello World")

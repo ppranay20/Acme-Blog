@@ -4,16 +4,14 @@ const zod = require('zod');
 
 const createPostSchema = zod.object({
     title : zod.string(),
-    content : zod.string()
+    content : zod.string(),
+    category : zod.string()
 })
 
-const updatePostSchema = zod.object({
-    title : zod.string().optional(),
-    content : zod.string().optional()
-})
 
 const createPost = async (req,res) => {
-    const datas = req.body;
+    const datas = req.body.data;
+    const id = req.body.userId
 
     const {success} = createPostSchema.safeParse(datas);
     if(!success){
@@ -28,7 +26,8 @@ const createPost = async (req,res) => {
             data : {
                 title : datas.title,
                 content : datas.content,
-                authorId : datas.userId
+                category : datas.category,
+                authorId : id
             }
         })
         res.json({
@@ -40,46 +39,24 @@ const createPost = async (req,res) => {
     }
 }
 
-const updatePost = async (req,res) => {
-    const datas = req.body;
-
-    const {success} = createPostSchema.safeParse(datas);
-    if(!success){
-        return res.json({
-            sucess : false,
-            message : "Wrong inputs"
-        })
-    }
-
-    try{
-        const updatePost = await prisma.post.update({
-            where : {
-                id : datas.id,
-                authorId : datas.userId
-            },
-            data : {
-                title : datas.title,
-                content : datas.content
-            }
-        })
-    
-        res.json({
-            posts : updatePost,
-            success : true,
-            message : "Post Updated Successfully"
-        })
-    }catch(err){
-        console.log(err)
-    }
-}
-
 const getPost = async (req,res) => {
     const postId = req.params.id;
 
     try{
-        const post = await prisma.post.findUnique({
+        const post = await prisma.post.findFirst({
             where : {
                 id : postId
+            },
+            select : {
+                content : true,
+                title : true,
+                category : true,
+                PublishedOn : true,
+                Author : {
+                    select : {
+                        username : true
+                    }
+                }
             }
         })
 
@@ -94,7 +71,20 @@ const getPost = async (req,res) => {
 
 const getAllPost = async (req,res) => {
     try{
-        const posts = await prisma.post.findMany();
+        const posts = await prisma.post.findMany({
+            select : {
+                content : true,
+                title : true,
+                id : true,
+                category : true,
+                PublishedOn : true,
+                Author : {
+                    select : {
+                        username : true
+                    }
+                }
+            }
+        });
         res.json({
             success : true,
             posts : posts
@@ -107,7 +97,6 @@ const getAllPost = async (req,res) => {
 
 module.exports = {
     createPost,
-    updatePost,
     getPost,
     getAllPost
 }
