@@ -2,15 +2,21 @@ import React, { useState } from 'react'
 import BlogCard from '../components/BlogCard'
 import Appbar from '../components/Appbar'
 import useBlogs from '../hooks/allPost'
+import BlogsSkeleton from '../components/BlogsSkeleton'
 
 const Blogs = () => {
   const {loading,blogs} = useBlogs();
   const [categories,setCategories] = useState("")
 
   if(loading){
-    return(
+    return(  
       <div>
-        loading...
+        <Appbar></Appbar>
+        <div className='mt-2'>
+          <BlogsSkeleton></BlogsSkeleton>
+          <BlogsSkeleton></BlogsSkeleton>
+          <BlogsSkeleton></BlogsSkeleton>
+        </div>
       </div>
     )
   }
@@ -31,7 +37,6 @@ const Blogs = () => {
               <button onClick={() => setCategories("Web Development")} className='text-sm bg-gray-200 rounded-lg py-2 px-2 mx-10 my-2 hover:bg-black hover:text-white focus:bg-black focus:text-white'>Web Devlopment</button>
               <button onClick={() => setCategories("IT")} className='text-sm bg-gray-200 rounded-lg py-2 px-2 mx-10 my-2 hover:bg-black hover:text-white focus:bg-black focus:text-white'>IT</button>
             </div>
-
           </div>
           <div className='mx-10 my-6'>
             {

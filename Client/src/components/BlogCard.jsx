@@ -5,7 +5,7 @@ const BlogCard = ({id,authorName,title,content,publishedDate}) => {
     const newDate = dateObj.toDateString().slice(4);
 
     return <>
-        <div className="p-4 border-b border-slate-200 pb-4 w-screen max-w-screen-md cursor-pointer">
+        <div className="p-4 border-b border-slate-200 pb-4 w-screen max-w-screen-md">
             <div className="flex">
             <div className={"relative inline-flex items-center justify-center overflow-hidden bg-gray-600 rounded-full w-6 h-6"}>   
                 <span className={"text-xs font-extralight text-gray-600 dark:text-gray-300"}>
