@@ -4,7 +4,7 @@ Acme Bolg is a Blog Website for reading and writing blogs.
 
 ## Installation
 
-To run the application you need your to get your own postgres url and paste it in the .env file along with PORT and JWT_SECRET.
+To run the application you need your to get your own postgres url and paste it in the .env file along with JWT_SECRET.
 
 Now to run the application type following commands :-
 
